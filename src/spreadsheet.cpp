@@ -28,6 +28,8 @@ void Spreadsheet::load()
 
 void Spreadsheet::calculateTotals()
 {
+    totalInvested = 0.0;
+    totalBTC = 0.0;
     if (data.size() > 1)
     { // Skip header
         for (size_t i = 1; i < data.size(); ++i)
@@ -46,26 +48,35 @@ void Spreadsheet::addHeader()
     }
 }
 
-void Spreadsheet::addEntry(const std::string &date, const std::string &amountSpent, const std::string &btcPrice)
+void Spreadsheet::addEntry(const std::string &date, const std::string &amountSpent, const std::string &btcPurchased)
 {
     double amount = std::stod(amountSpent);
-    double price = std::stod(btcPrice);
-    double btcPurchased = amount / price;
+    double btc = std::stod(btcPurchased);
+    double price = amount / btc;
 
     totalInvested += amount;
-    totalBTC += btcPurchased;
+    totalBTC += btc;
     double dca = totalInvested / totalBTC;
 
     std::vector<std::string> entry = {
         date,
         amountSpent,
-        std::to_string(btcPurchased),
-        btcPrice,
+        btcPurchased,
+        std::to_string(price),
         std::to_string(totalInvested),
         std::to_string(totalBTC),
         std::to_string(dca)};
 
     data.push_back(entry);
+}
+
+void Spreadsheet::removeLastEntry()
+{
+    if (data.size() > 1)
+    {
+        data.pop_back();
+        calculateTotals();
+    }
 }
 
 void Spreadsheet::save()
